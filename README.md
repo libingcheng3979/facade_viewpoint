@@ -1,9 +1,9 @@
 
-# Facade Viewpoint Generator
+# Facade Viewpoint
 
 为解决城市计算中街景数据获取的视点定位问题，确保采集的图像能够正对建筑沿街主立面，本项目提出一种自动化方法，根据建筑足迹和路网数据，批量生成面向建筑立面的最佳街景采样点（Lat, Lon）及相机拍摄角度（heading）。
 
-![streetview_samples_examples.png](data%2Foutput%2Fstreetview_samples_examples.png)
+<img width="4271" height="1763" alt="streetview_samples_examples" src="https://github.com/user-attachments/assets/bba58441-ae41-4062-9c14-fde4153336b7" />
 
 ## 主要功能
 
@@ -12,7 +12,7 @@
 * **视点定位与角度计算**：基于建筑特征边中点与路网的空间关系，计算最近邻投影点，生成最优采样位置，并计算相机朝向。
 * **可视化验证**：生成采样详情图、交互式网页地图及统计图表。
 
-![img_1.png](img_1.png)
+<img width="700" height="400" alt="img_1" src="https://github.com/user-attachments/assets/953a296c-211a-42b8-bc8e-6ebb845aa9c8" />
 
 ## 快速开始
 

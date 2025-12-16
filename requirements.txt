@@ -1,7 +1,7 @@
 geopandas
 pandas
+shapely
 numpy
 matplotlib
 folium
-shapely
 tqdm

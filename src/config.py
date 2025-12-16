@@ -1,60 +1,65 @@
 import os
-from pathlib import Path
+
 
 class Config:
-    """配置参数类 - 集中管理所有可调参数"""
-    
-    # 获取项目根目录 (假设 config.py 在 src/ 目录下，向上两级是根目录)
-    PROJECT_ROOT = Path(__file__).parent.parent
-    
-    # -------------------- 输入文件路径 --------------------
-    # 建议将数据放入 data/input 目录，这里使用相对路径
-    DATA_DIR = PROJECT_ROOT / "data"
-    INPUT_DIR = DATA_DIR / "input"
-    OUTPUT_DIR = DATA_DIR / "output"
-    
-    # TODO: 请用户根据实际文件名修改这里
-    BUILDING_FILENAME = "Building_Footprints_20251214.geojson"
-    ROAD_FILENAME = "roads_sfc.geojson"
-    
-    @property
-    def BUILDING_PATH(self):
-        return self.INPUT_DIR / self.BUILDING_FILENAME
+    # ==========================
+    # 路径配置
+    # ==========================
+    # 建议使用相对路径或在实例化时传入，这里作为默认值
+    BUILDING_PATH = "./data/input/Building_Footprints_20251214.geojson"
+    ROAD_PATH = "./data/input/roads_sfc.geojson"
 
-    @property
-    def ROAD_PATH(self):
-        return self.INPUT_DIR / self.ROAD_FILENAME
-    
-    # -------------------- 采样参数 --------------------
-    SAMPLE_SIZE = 500          # 随机采样建筑数量（None表示处理全部）
-    RANDOM_SEED = 42            # 随机种子
-    
-    # -------------------- 处理参数 --------------------
-    SIMPLIFY_TOLERANCE = 2      # 建筑简化容差（米）
-    BUFFER_DISTANCE = 50        # 建筑缓冲区距离（米）
-    MAX_DISTANCE = 100          # 最大采样点距离阈值（米）
-    MIN_BUILDING_AREA = 20      # 最小建筑面积阈值（平方米）
-    
-    # -------------------- 道路筛选参数 --------------------
-    ENABLE_ROAD_FILTERING = False
-    ROAD_TYPE_FIELD = 'type'
+    # ==========================
+    # 坐标系参数
+    # ==========================
+    TARGET_CRS = "EPSG:32610"  # 投影坐标系（米）
+    OUTPUT_CRS = "EPSG:4326"  # 输出坐标系（经纬度）
+
+    # ==========================
+    # 采样参数
+    # ==========================
+    SAMPLE_SIZE = 1000  # 采样数量，None 为全部
+    RANDOM_SEED = 42
+
+    # ==========================
+    # 几何处理参数
+    # ==========================
+    SIMPLIFY_TOLERANCE = 2  # 建筑简化容差（米）
+    MIN_BUILDING_AREA = 20  # 最小建筑面积（平方米）
+
+    # ==========================
+    # 采样匹配参数
+    # ==========================
+    BUFFER_DISTANCE = 50  # 搜索缓冲区（米）
+    MAX_DISTANCE = 100  # 最大有效距离（米）
+
+    # ==========================
+    # [新增] 道路筛选参数
+    # ==========================
+    # 是否开启道路类型筛选
+    ROAD_FILTER_ENABLED = True
+
+    # 道路数据中标识类型的字段名 (根据实际数据调整，常见为 'type', 'fclass', 'highway' 等)
+    ROAD_TYPE_COLUMN = 'type'
+
+    # 需要排除的道路类型列表
     EXCLUDED_ROAD_TYPES = [
-        'motorway', 'motorway_link', 'trunk', 'trunk_link',
-        'steps', 'cycleway', 'footway', 'path', 'pedestrian',
-        'service', 'construction'
+        'motorway',  # 高速公路
+        'motorway_link',  # 高速匝道
+        'trunk',  # 干线
+        'trunk_link',  # 干线匝道
+        'pedestrian',  # 步行街（视情况而定，如果车进不去就排除）
+        'footway',
+        'steps'
     ]
-    
-    # -------------------- 坐标系参数 --------------------
-    TARGET_CRS = "EPSG:32610"   # UTM Zone 10N (投影坐标系，用于计算距离)
-    OUTPUT_CRS = "EPSG:4326"    # WGS84 (经纬度，用于输出结果)
-    
-    # -------------------- 输出配置 --------------------
-    OUTPUT_CSV_NAME = "building_streetview_samples.csv"
-    
-    # 确保输出目录存在
-    def __init__(self):
-        os.makedirs(self.OUTPUT_DIR, exist_ok=True)
-        print(f"配置已加载。根目录: {self.PROJECT_ROOT}")
 
-# 实例化供其他模块调用
-cfg = Config()
+    @staticmethod
+    def print_config():
+        """打印当前关键配置"""
+        print("[配置信息]")
+        print(f"  - 目标坐标系: {Config.TARGET_CRS}")
+        print(f"  - 采样数量: {Config.SAMPLE_SIZE}")
+        print(f"  - 道路筛选: {'开启' if Config.ROAD_FILTER_ENABLED else '关闭'}")
+        if Config.ROAD_FILTER_ENABLED:
+            print(f"  - 排除类型: {Config.EXCLUDED_ROAD_TYPES}")
+        print("-" * 40)

@@ -21,7 +21,7 @@
 本项目基于 Python 3.10 开发。
 
 ```bash
-git clone [https://github.com/libingcheng3979/facade_viewpoint.git](https://github.com/libingcheng3979/facade_viewpoint.git)
+git clone https://github.com/libingcheng3979/facade_viewpoint.git
 cd facade_viewpoint
 pip install -r requirements.txt
 ```

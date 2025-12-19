@@ -18,33 +18,41 @@ class Visualizer:
         self.cfg = config
 
     def save_results_to_csv(self, results_df, output_filename="streetview_samples.csv"):
-        """将结果转换为 WGS84 坐标并保存为 CSV (保持原样)"""
+        """将结果转换为 WGS84 坐标并保存为 CSV"""
         print(f"\n正在导出结果到 {output_filename}...")
 
-        # 1. 构造 GeoDataFrame 进行坐标转换
+        # 1. 坐标转换
         gdf_sample = gpd.GeoDataFrame(results_df, geometry='geometry_sample', crs=self.cfg.TARGET_CRS).to_crs(
             self.cfg.OUTPUT_CRS)
         gdf_midpoint = gpd.GeoDataFrame(results_df, geometry='geometry_midpoint', crs=self.cfg.TARGET_CRS).to_crs(
             self.cfg.OUTPUT_CRS)
 
+        # 2. 提取经纬度
         final_df = results_df.copy()
         final_df['lat'] = gdf_sample.geometry.y
         final_df['lng'] = gdf_sample.geometry.x
         final_df['building_center_lat'] = gdf_midpoint.geometry.y
         final_df['building_center_lng'] = gdf_midpoint.geometry.x
 
+        # 3. 添加 PID 字段 (0, 1, 2...)
+        final_df['PID'] = range(len(final_df))
+
+        # 4. 清理列
         cols_to_drop = ['geometry_sample', 'geometry_midpoint']
         final_df = final_df.drop(columns=[c for c in cols_to_drop if c in final_df.columns])
 
-        ordered_cols = ['building_id', 'lat', 'lng', 'heading', 'distance', 'confidence', 'building_area',
-                        'building_center_lat', 'building_center_lng', 'edge_index']
-        final_cols = [c for c in ordered_cols if c in final_df.columns]
-        final_df = final_df[final_cols]
+        # 5. 定义输出顺序 (将 PID 放在第一位)
+        ordered_cols = ['PID', 'building_id', 'lat', 'lng', 'heading', 'distance', 'confidence',
+                        'building_area', 'building_center_lat', 'building_center_lng', 'edge_index']
 
-        output_path = os.path.join("data/output", output_filename)
+        # 筛选存在的列并排序
+        final_df = final_df[[c for c in ordered_cols if c in final_df.columns]]
+
+        # 6. 保存
+        output_path = os.path.join("data", output_filename)
         os.makedirs("data", exist_ok=True)
         final_df.to_csv(output_path, index=False, encoding='utf-8-sig')
-        print(f"  CSV 保存成功: {output_path}")
+        print(f"  ✓ CSV 保存成功: {output_path}")
         return final_df
 
     def create_interactive_map(self, final_df, output_filename="map_preview.html"):
